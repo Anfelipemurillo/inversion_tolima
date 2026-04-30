@@ -1,0 +1,75 @@
+:root {
+  --tolima-primary: #761C33; /* Vinotinto */
+  --tolima-accent: #CBA135;  /* Oro */
+  --tolima-primary-pale: #fcf6f7;
+  --bg-body: #F4F8FB;
+  --surface: #ffffff;
+  --text-primary: #0f172a;
+  --text-muted: #64748b;
+  --border-color: #CBD5E1;
+  --shadow-header: 0 4px 20px rgba(118, 28, 51, 0.15);
+  --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.1);
+}
+
+* { box-sizing: border-box; }
+
+body, html {
+  margin: 0; padding: 0; height: 100vh;
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-body);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+
+/* Header */
+.app-header {
+  height: 72px; background: #fff; display: flex; align-items: center;
+  justify-content: space-between; padding: 0 24px; box-shadow: var(--shadow-header);
+  z-index: 50; border-bottom: 3px solid var(--tolima-accent);
+}
+.branding { display: flex; align-items: center; gap: 16px; }
+.escudo-img { height: 50px; }
+.main-title { font-weight: 900; font-size: 1.1rem; color: var(--tolima-primary); text-transform: uppercase; }
+.main-title span { color: var(--tolima-accent); }
+.sub-title { font-weight: 600; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; }
+.system-status { display: flex; align-items: center; gap: 8px; background: rgba(118, 28, 51, 0.1); padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; color: var(--tolima-primary); }
+.status-indicator { width: 8px; height: 8px; background-color: var(--tolima-primary); border-radius: 50%; animation: pulse 2s infinite; }
+
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(118, 28, 51, 0.4); } 50% { box-shadow: 0 0 0 6px rgba(118, 28, 51, 0); } 100% { box-shadow: 0 0 0 0 rgba(118, 28, 51, 0); } }
+
+/* Layout Split Screen */
+.main-layout { display: flex; flex: 1; height: calc(100vh - 72px); overflow: hidden; }
+
+/* Panel Mapa */
+.dashboard-panel { flex: 1; position: relative; margin: 16px; margin-right: 0; border-radius: 12px; box-shadow: var(--shadow-md); border: 1px solid var(--border-color); overflow: hidden; }
+#map { width: 100%; height: 100%; z-index: 1; }
+
+/* Panel Chat IA */
+.chat-panel { width: 350px; min-width: 320px; display: flex; flex-direction: column; padding: 16px; }
+.chat-card { background: var(--surface); flex: 1; border-radius: 12px; box-shadow: var(--shadow-md); border: 1px solid var(--border-color); display: flex; flex-direction: column; overflow: hidden; }
+.chat-header { background: linear-gradient(135deg, var(--tolima-primary) 0%, #4a1120 100%); padding: 16px 20px; color: white; display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid var(--tolima-accent); }
+.assistant-profile { display: flex; align-items: center; gap: 12px; }
+.avatar-circle { width: 42px; height: 42px; background: rgba(255, 255, 255, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--tolima-accent); font-size: 14px; font-weight: 900; border: 2px solid var(--tolima-accent); }
+.assistant-details h2 { margin: 0; font-size: 0.95rem; font-weight: 700; letter-spacing: 0.5px; }
+.assistant-details span { font-size: 0.75rem; opacity: 0.9; color: #f1f5f9; }
+.btn-reset { background: rgba(255, 255, 255, 0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; transition: all 0.2s; font-size: 18px; }
+.btn-reset:hover { background: var(--tolima-accent); color: var(--tolima-primary); }
+.messenger-wrapper { flex: 1; position: relative; background: #fff; }
+
+/* Customización Dialogflow Messenger (Requerido por Xertica) */
+df-messenger {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10;
+  --df-messenger-font-color: var(--text-primary);
+  --df-messenger-font-family: 'Inter', sans-serif;
+  --df-messenger-titlebar-display: none; /* Ocultar header nativo */
+  --df-messenger-chat-background: #ffffff;
+  --df-messenger-message-user-background: var(--tolima-primary);
+  --df-messenger-message-user-font-color: #ffffff;
+  --df-messenger-message-bot-background: #f1f5f9;
+  --df-messenger-input-background: var(--tolima-primary-pale);
+  --df-messenger-send-icon-color: var(--tolima-primary);
+  --df-messenger-input-box-focus-border: 2px solid var(--tolima-accent);
+}
+
+/* El resto de tu CSS del mapa (sidebar, kpi-card, detail-panel, etc.) va aquí debajo */
+#sidebar { position: absolute; top: 24px; left: 24px; width: 320px; background: rgba(255, 255, 255, 0.95); box-shadow: var(--shadow-md); z-index: 1000; border-radius: 12px; padding: 15px; }
+/* ... (pega aquí el CSS del sidebar y detalle que ya teníamos en tu Apps Script) ... */

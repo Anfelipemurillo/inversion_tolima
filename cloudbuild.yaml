@@ -1,0 +1,25 @@
+steps:
+  # 1. Construir la imagen de Docker
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/frontend-dashboard/inversion-front:$COMMIT_SHA', '.']
+
+  # 2. Subir la imagen a Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'us-central1-docker.pkg.dev/$PROJECT_ID/frontend-dashboard/inversion-front:$COMMIT_SHA']
+
+  # 3. Desplegar en Cloud Run
+  - name: 'gcr.io/[google.com/cloudsdktool/cloud-sdk](https://google.com/cloudsdktool/cloud-sdk)'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'monitor-inversion' # Nombre del servicio final
+      - '--image'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/frontend-dashboard/inversion-front:$COMMIT_SHA'
+      - '--region'
+      - 'us-central1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--service-account'
+      - '753170017712-compute@developer.gserviceaccount.com' # Reemplazar con el SA de tu proyecto

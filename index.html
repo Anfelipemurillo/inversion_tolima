@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>Monitor Inversión Tolima 2026</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+  <link rel="stylesheet" href="[https://unpkg.com/leaflet@1.9.4/dist/leaflet.css](https://unpkg.com/leaflet@1.9.4/dist/leaflet.css)" crossorigin="anonymous"/>
+  <script src="[https://unpkg.com/leaflet@1.9.4/dist/leaflet.js](https://unpkg.com/leaflet@1.9.4/dist/leaflet.js)" crossorigin="anonymous"></script>
+  <link href="[https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap](https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap)" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  
+  <link rel="stylesheet" href="[https://www.gstatic.com/dialogflow-console/fast/messenger/cx/v1/main.css](https://www.gstatic.com/dialogflow-console/fast/messenger/cx/v1/main.css)">
+  <script src="[https://www.gstatic.com/dialogflow-console/fast/messenger/cx/v1/main.js](https://www.gstatic.com/dialogflow-console/fast/messenger/cx/v1/main.js)"></script>
+</head>
+<body>
+
+  <header class="app-header">
+    <div class="branding">
+      <img src="[https://tolima.gov.co/images/Tablero_planeacion_2026.jpg](https://tolima.gov.co/images/Tablero_planeacion_2026.jpg)" alt="Gobernación" class="escudo-img">
+      <div class="titles">
+        <div class="main-title">Monitor Estratégico <span>Inversión</span></div>
+        <div class="sub-title">Gobernación del Tolima</div>
+      </div>
+    </div>
+    <div class="header-info">
+      <div class="system-status">
+        <div class="status-indicator"></div> En línea
+      </div>
+    </div>
+  </header>
+
+  <main class="main-layout">
+    <section class="dashboard-panel">
+      <div id="loader"><div class="spinner"></div></div>
+      <div id="map"></div>
+      
+      <aside id="sidebar">
+        <div class="controls-area">
+          <div class="kpi-card">
+              <div class="kpi-title" id="kpiLabel">Inversión Total Departamental</div>
+              <div class="kpi-value" id="kpiRP">$ 0</div>
+          </div>
+          <div class="filter-group"><label>Subregión</label><select id="subFilter"><option value="">🗺️ Visión Global</option></select></div>
+          <div class="filter-group"><label>Municipio</label><select id="muniFilter"><option value="">🗺️ Todos</option></select></div>
+          <div class="filter-group"><label>Dependencia</label><select id="secFilter"><option value="">📋 Todas</option></select></div>
+        </div>
+      </aside>
+
+      <aside id="detail-panel">
+        <div class="panel-header">
+          <button class="close-btn" id="btnClosePanel">X</button>
+          <h3 class="panel-title" id="panelTitle">...</h3>
+          <p class="panel-subtitle" id="panelSub">Matriz de Inversión</p>
+        </div>
+        <div class="panel-body" id="panelBody"></div>
+      </aside>
+    </section>
+
+    <aside class="chat-panel">
+      <div class="chat-card">
+        <div class="chat-header">
+          <div class="assistant-profile">
+            <div class="avatar-circle">IA</div>
+            <div class="assistant-details">
+              <h2>AMAIA</h2>
+              <span>Asistente de Inversión</span>
+            </div>
+          </div>
+          <button class="btn-reset" id="btn-reset" title="Reiniciar chat">↻</button>
+        </div>
+        <div class="messenger-wrapper">
+          <df-messenger
+            project-id="co-tol-prd"
+            agent-id="ID_DEL_AGENTE_DE_INVERSION_AQUI"
+            language-code="es"
+            max-query-length="256">
+            <df-messenger-chat-bubble chat-title=""></df-messenger-chat-bubble>
+          </df-messenger>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <script src="main.js"></script>
+</body>
+</html>
