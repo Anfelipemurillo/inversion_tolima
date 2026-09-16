@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Monitor IPM - Tolima 2026</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+
+    <link rel="preload" as="image" href="https://tolima.gov.co/images/Tablero_planeacion_2026.jpg" fetchpriority="high">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous" defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <!-- Enlace al CSS unificado en la carpeta raíz -->
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+    <div id="bgLayer"></div>
+    <div id="loader">
+        <div class="spinner"></div>
+        <div id="loadingText" style="margin-top:15px;">Iniciando Sistema...</div>
+    </div>
+
+    <div class="main-layout">
+        <section class="dashboard-panel">
+            <div id="map"></div>
+
+            <aside id="sidebar">
+                <div class="brand-header">
+                    <img id="mainLogo" src="https://tolima.gov.co/images/Tablero_planeacion_2026.jpg"
+                        alt="Gobernación del Tolima">
+                </div>
+
+                <div class="controls-area">
+                    <div class="filter-group">
+                        <label>Vigencia de Datos (Periodo)</label>
+                        <div class="vigencias-btn-group">
+                            <button id="btnVigencia2026-1" class="btn-vigencia active"
+                                onclick="cambiarVigencia('2026-1')">2026-1</button>
+                            <button id="btnVigencia2026-2" class="btn-vigencia"
+                                onclick="cambiarVigencia('2026-2')">2026-2</button>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="subregionFilter">Subregión</label>
+                        <select id="subregionFilter">
+                            <option value="">📍 Todas las Subregiones</option>
+                            <option value="Centro">Subregión Centro</option>
+                            <option value="Nevados">Subregión Nevados</option>
+                            <option value="Norte">Subregión Norte</option>
+                            <option value="Oriente">Subregión Oriente</option>
+                            <option value="Sur">Subregión Sur</option>
+                            <option value="Suroriente">Subregión Suroriente</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="muniFilter">Seleccionar Municipio</label>
+                        <select id="muniFilter">
+                            <option value="TOLIMA">📊 Visión Global del Tolima</option>
+                        </select>
+                    </div>
+
+                    <div class="map-toggles-container">
+                        <button id="btnSubmap" class="btn-map-toggle">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
+                                <circle cx="12" cy="10" r="3"></circle>
+                            </svg>
+                            <span>Subregiones</span>
+                        </button>
+                        <button id="btnHeatmap" class="btn-map-toggle">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+                                <line x1="8" y1="2" x2="8" y2="18"></line>
+                                <line x1="16" y1="6" x2="16" y2="22"></line>
+                            </svg>
+                            <span>Calor (IPM)</span>
+                        </button>
+                    </div>
+
+                    <!-- Tarjeta especial de Sisbén para IPM -->
+                    <div id="sisbenCard" style="flex-shrink: 0; margin-top: 10px;"></div>
+
+                    <div id="fuenteDatos"
+                        style="font-size: 9px; color: var(--text-muted); text-align: center; padding: 5px 0 0; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.8; font-weight: 600; flex-shrink: 0; border-top: 1px solid var(--border-light);">
+                        Fuente: Carga en Curso...
+                    </div>
+                </div>
+            </aside>
+
+            <aside id="detail-panel">
+                <div class="panel-header">
+                    <button class="action-btn icon-only close-btn" id="btnClosePanel" title="Cerrar Panel">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                    <h3 class="panel-title" id="panelTitle">...</h3>
+                    <p class="panel-subtitle" id="panelSub">Detalle Territorial</p>
+
+                    <div class="informes-actions">
+                        <!-- Botón de impresión usando las mismas clases de Inversión para heredar el estilo -->
+                        <button class="action-btn text-btn print-btn" onclick="ejecutarImpresion()"
+                            title="Imprimir Reporte Ejecutivo">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2">
+                                </path>
+                                <rect x="6" y="14" width="12" height="8"></rect>
+                            </svg>
+                            Informe de Pobreza
+                        </button>
+                    </div>
+                </div>
+                <div class="panel-body" id="panelBody"></div>
+            </aside>
+        </section>
+    </div>
+
+    <script src="geo.js" defer></script>
+    <script src="script.js" defer></script>
+</body>
+
+</html>
