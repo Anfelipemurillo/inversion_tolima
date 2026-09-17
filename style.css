@@ -125,12 +125,76 @@
             overflow: hidden;
         }
 
+        /* BARRA SUPERIOR DEL SIDEBAR - RETORNO A LANDING PAGE */
+        .sidebar-top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 14px;
+            background: linear-gradient(135deg, #4A1020 0%, #761C33 100%);
+            border-bottom: 2px solid var(--oro);
+            flex-shrink: 0;
+            gap: 10px;
+        }
+
+        .btn-home-return {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff !important;
+            text-decoration: none;
+            font-size: 11.5px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(203, 161, 53, 0.4);
+            transition: all 0.22s ease-in-out;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .btn-home-return:hover {
+            background: var(--oro);
+            color: #4A1020 !important;
+            border-color: var(--oro);
+            transform: translateX(-2px);
+            box-shadow: 0 3px 10px rgba(203, 161, 53, 0.35);
+        }
+
+        .btn-home-return svg {
+            flex-shrink: 0;
+            transition: transform 0.2s ease;
+        }
+
+        .btn-home-return:hover svg.arrow-icon {
+            transform: translateX(-2px);
+        }
+
+        .portal-badge-label {
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            color: #E5C368;
+            opacity: 0.95;
+            user-select: none;
+            white-space: nowrap;
+        }
+
         .brand-header {
             background: #ffffff;
             border-bottom: 1px solid var(--border-light);
             padding: 0; /* Sin espacios internos */
             margin: 0;
             flex-shrink: 0;
+        }
+
+        .brand-header a {
+            display: block;
+            text-decoration: none;
+            cursor: pointer;
         }
 
         .brand-header img {

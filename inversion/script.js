@@ -1021,6 +1021,7 @@ const $ = (id) => document.getElementById(id);
         function toggleChat() {
             const panel = $('ai-chat-sidebar');
             const btn = $('ai-chat-btn');
+            if (!panel || !btn) return;
             const isOpen = panel.classList.toggle('open');
             btn.classList.toggle('hidden', isOpen);
 
