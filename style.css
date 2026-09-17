@@ -25,16 +25,12 @@
             position: relative;
         }
 
-        /* Fondo separado en su propia capa fija: al no ser "background-attachment:
-           fixed" sobre el body, el navegador no necesita repintar la imagen de
-           fondo en cada frame de las animaciones del mapa (flyToBounds, zoom).
-           Se compone una sola vez y queda detrás de todo (z-index: -1). */
         #bgLayer {
             position: fixed;
             inset: 0;
             z-index: -1;
             background-color: #f8fafc;
-            background-image: url('https://lh3.googleusercontent.com/d/1oLgtwF_8bTeOWUE5xGeJT19ByY-t8FV_');
+            /*background-image: url('https://lh3.googleusercontent.com/d/1oLgtwF_8bTeOWUE5xGeJT19ByY-t8FV_');*/
             background-size: cover;
             background-position: center center;
             pointer-events: none;
@@ -186,7 +182,8 @@
         .brand-header {
             background: #ffffff;
             border-bottom: 1px solid var(--border-light);
-            padding: 0; /* Sin espacios internos */
+            padding: 0;
+            /* Sin espacios internos */
             margin: 0;
             flex-shrink: 0;
         }
@@ -198,10 +195,13 @@
         }
 
         .brand-header img {
-            width: 100%; /* Ocupa todo el ancho disponible */
-            height: auto; /* Se ajusta automáticamente para no deformarse */
+            width: 100%;
+            /* Ocupa todo el ancho disponible */
+            height: auto;
+            /* Se ajusta automáticamente para no deformarse */
             display: block;
-            object-fit: cover; /* Llena la caja completamente */
+            object-fit: cover;
+            /* Llena la caja completamente */
         }
 
         .controls-area {
@@ -1159,9 +1159,20 @@
         }
 
         @keyframes pulse-btn {
-            0% { transform: scale(1); box-shadow: 0 10px 30px rgba(118, 28, 51, 0.5); }
-            50% { transform: scale(1.1); box-shadow: 0 15px 45px rgba(118, 28, 51, 0.7); }
-            100% { transform: scale(1); box-shadow: 0 10px 30px rgba(118, 28, 51, 0.5); }
+            0% {
+                transform: scale(1);
+                box-shadow: 0 10px 30px rgba(118, 28, 51, 0.5);
+            }
+
+            50% {
+                transform: scale(1.1);
+                box-shadow: 0 15px 45px rgba(118, 28, 51, 0.7);
+            }
+
+            100% {
+                transform: scale(1);
+                box-shadow: 0 10px 30px rgba(118, 28, 51, 0.5);
+            }
         }
 
         #ai-chat-btn.hidden {
@@ -1225,7 +1236,7 @@
         }
 
         /* 4. Ensure adequate touch targets in sidebar */
-        .controls-area button, 
+        .controls-area button,
         .controls-area select {
             min-height: 44px;
             min-width: 44px;

@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="utf-8" />
     <title>Sistema de Monitoreo Territorial — Gobernación del Tolima 2026</title>
-    <meta name="description" content="Portal de Monitores Territoriales de la Gobernación del Tolima. Monitoreo estratégico de inversión pública y pobreza multidimensional.">
+    <meta name="description"
+        content="Portal de Monitores Territoriales de la Gobernación del Tolima. Monitoreo estratégico de inversión pública y pobreza multidimensional.">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
     <style>
         :root {
             --vino: #761C33;
@@ -27,7 +31,9 @@
             --shadow-hover: 0 20px 35px -8px rgba(118, 28, 51, 0.16), 0 10px 14px -5px rgba(0, 0, 0, 0.06);
         }
 
-        *, *::before, *::after {
+        *,
+        *::before,
+        *::after {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
@@ -51,7 +57,7 @@
             align-items: center;
             justify-content: space-between;
             border-bottom: 2px solid var(--oro);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             position: relative;
             z-index: 20;
         }
@@ -117,9 +123,11 @@
         /* BANNER SECTION */
         .banner-showcase {
             width: 100%;
-            max-width: 820px;
-            margin-bottom: 20px;
-            border-radius: 16px;
+            max-width: 500px;
+            /* Reducimos el ancho máximo para encoger el alto proporcionalmente */
+            margin: 0 auto 16px auto;
+            /* Centrado automático y margen inferior pequeño */
+            border-radius: 12px;
             overflow: hidden;
             box-shadow: var(--shadow-md);
             border: 1px solid var(--border-subtle);
@@ -134,8 +142,8 @@
         .banner-image {
             width: 100%;
             height: auto;
+            /* Recupera su escala natural sin recortes */
             display: block;
-            object-fit: contain;
         }
 
         /* SECTION HEADER */
@@ -372,24 +380,30 @@
                 grid-template-columns: 1fr;
                 gap: 16px;
             }
+
             .topbar {
                 padding: 10px 18px;
             }
+
             .topbar-subtitle {
                 display: none;
             }
+
             .main-container {
                 padding: 16px 16px 28px;
             }
+
             .portal-title {
                 font-size: 20px;
             }
+
             .card-inner {
                 padding: 20px;
             }
         }
     </style>
 </head>
+
 <body>
 
     <!-- TOPBAR CORPORATIVA COMPACTA -->
@@ -397,7 +411,7 @@
         <div class="topbar-left">
             <span class="topbar-badge-dot"></span>
             <span class="topbar-title">Gobernación del Tolima</span>
-            <span class="topbar-subtitle">Secretaría de Planeación y TIC</span>
+            <span class="topbar-subtitle">Secretaría de Planeación, Prospectiva y TIC</span>
         </div>
         <span class="topbar-year">VIGENCIA 2026</span>
     </header>
@@ -406,12 +420,9 @@
 
         <!-- BANNER SUPERIOR OFICIAL (IMAGEN DIRECTA) -->
         <section class="banner-showcase">
-            <img
-                src="https://tolima.gov.co/images/Tablero_planeacion_2026.jpg"
-                alt="Tablero de Planeación Departamental 2026 — Gobernación del Tolima"
-                class="banner-image"
-                loading="eager"
-            />
+            <img src="https://tolima.gov.co/images/Tablero_planeacion_2026.jpg"
+                alt="Tablero de Planeación Departamental 2026 — Gobernación del Tolima" class="banner-image"
+                loading="eager" />
         </section>
 
         <!-- ENCABEZADO DE SELECCIÓN COMPACTO -->
@@ -421,7 +432,8 @@
                 Sistema de Información Georreferenciada
             </div>
             <h1 class="portal-title">Seleccione el Monitor Territorial</h1>
-            <p class="portal-desc">Acceda a las plataformas analíticas para la consulta y toma de decisiones basadas en evidencia oficial.</p>
+            <p class="portal-desc">Acceda a las plataformas analíticas para la consulta y toma de decisiones basadas en
+                evidencia oficial.</p>
         </div>
 
         <!-- LOS DOS RECUADROS PARA SELECCIONAR LOS MONITORES -->
@@ -434,7 +446,8 @@
                     <div class="card-header-row">
                         <div class="card-icon-container">
                             <!-- Icono Inversión / Presupuesto -->
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"
+                                stroke-linejoin="round">
                                 <line x1="12" y1="1" x2="12" y2="23"></line>
                                 <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
                             </svg>
@@ -444,7 +457,8 @@
 
                     <h2 class="card-title">Monitor de Inversión</h2>
                     <p class="card-description">
-                        Consulte la distribución territorial del presupuesto departamental, ejecución de proyectos en curso y fuentes de financiación (SGR, SGP, Propios) por dependencia y municipio.
+                        Consulte la distribución territorial del presupuesto departamental, ejecución de proyectos en
+                        curso y fuentes de financiación (SGR, SGP, Propios) por dependencia y municipio.
                     </p>
 
                     <div class="card-features">
@@ -457,7 +471,8 @@
                     <div class="card-footer-cta">
                         <span>Ingresar al Monitor</span>
                         <div class="cta-arrow">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"
+                                stroke-linejoin="round">
                                 <line x1="5" y1="12" x2="19" y2="12"></line>
                                 <polyline points="12 5 19 12 12 19"></polyline>
                             </svg>
@@ -473,7 +488,8 @@
                     <div class="card-header-row">
                         <div class="card-icon-container">
                             <!-- Icono Pobreza / IPM / Estadísticas -->
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"
+                                stroke-linejoin="round">
                                 <line x1="18" y1="20" x2="18" y2="10"></line>
                                 <line x1="12" y1="20" x2="12" y2="4"></line>
                                 <line x1="6" y1="20" x2="6" y2="14"></line>
@@ -484,7 +500,8 @@
 
                     <h2 class="card-title">Monitor de Pobreza (IPM)</h2>
                     <p class="card-description">
-                        Explore el Índice de Pobreza Multidimensional, las 5 dimensiones de privación social, caracterización de vulnerabilidad Sisbén IV y demografía de los 47 municipios del Tolima.
+                        Explore el Índice de Pobreza Multidimensional, las 5 dimensiones de privación social,
+                        caracterización de vulnerabilidad Sisbén IV y demografía de los 47 municipios del Tolima.
                     </p>
 
                     <div class="card-features">
@@ -497,7 +514,8 @@
                     <div class="card-footer-cta">
                         <span>Ingresar al Monitor</span>
                         <div class="cta-arrow">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"
+                                stroke-linejoin="round">
                                 <line x1="5" y1="12" x2="19" y2="12"></line>
                                 <polyline points="12 5 19 12 12 19"></polyline>
                             </svg>
@@ -513,10 +531,11 @@
     <!-- FOOTER COMPACTO -->
     <footer class="page-footer">
         <p>
-            <strong>Gobernación del Tolima</strong> — Secretaría de Planeación y TIC &nbsp;·&nbsp;
+            <strong>Gobernación del Tolima</strong> — Secretaría de Planeación, Prospectiva y TIC &nbsp;·&nbsp;
             Plataforma Oficial de Monitoreo Territorial 2026
         </p>
     </footer>
 
 </body>
+
 </html>
