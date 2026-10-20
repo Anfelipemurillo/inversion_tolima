@@ -543,6 +543,9 @@ const $ = (id) => document.getElementById(id);
         function renderDetailPanel(filteredRows, panelTitleText, isGlobal) {
             const body = $('panelBody');
             $('panelTitle').textContent = panelTitleText;
+            if ($('btnBackMuni')) {
+                $('btnBackMuni').style.display = state.muni ? 'inline-flex' : 'none';
+            }
 
             const totalRP = filteredRows.reduce((sum, r) => sum + (isGlobal ? r.fullRp : r.rp), 0);
 
@@ -1665,7 +1668,26 @@ const $ = (id) => document.getElementById(id);
             };
         }
         if ($('btnBack')) $('btnBack').onclick = () => selectSec("");
+        if ($('btnBackMuni')) {
+            $('btnBackMuni').onclick = () => {
+                state.muni = "";
+                state.sec = "";
+                state.excl = false;
+                if ($('muniFilter')) $('muniFilter').value = "";
+                if ($('secFilter')) $('secFilter').value = "";
+                if (state.sub) {
+                    state.sub = "";
+                    if ($('subFilter')) $('subFilter').value = "";
+                    updateMuniDropdown();
+                }
+                if (state.muniLayer && Object.keys(state.muniLayer._layers).length > 0) {
+                    try { map.flyToBounds(state.muniLayer.getBounds(), { paddingTopLeft: getSmartPadding().ptl, paddingBottomRight: getSmartPadding().pbr, duration: 0.8 }); } catch(e) {}
+                }
+                calculateDashboard();
+            };
+        }
         if ($('btnHeatmap')) $('btnHeatmap').onclick = () => { state.heat = !state.heat; if (state.heat) state.subMap = false; updateButtonsUI(); updateMapStyles(); };
         if ($('btnSubmap')) $('btnSubmap').onclick = () => { state.subMap = !state.subMap; if (state.subMap) state.heat = false; updateButtonsUI(); updateMapStyles(); };
 
         window.onload = init;
+
