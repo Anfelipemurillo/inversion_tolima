@@ -1,4 +1,4 @@
-// ==========================================
+﻿// ==========================================
 // ADAPTACIÓN DESDE GOOGLE APPS SCRIPT (GAS)
 // ==========================================
 async function fetchClientPayload(vigencia, skipStatic = false) {
@@ -13,29 +13,7 @@ async function fetchClientPayload(vigencia, skipStatic = false) {
     return await response.json();
 }
 
-// Shim de compatibilidad con Google Apps Script (google.script.run)
-window.google = window.google || {};
-window.google.script = window.google.script || {};
-window.google.script.run = {
-    withSuccessHandler: function(onSuccess) {
-        this._onSuccess = onSuccess;
-        return this;
-    },
-    withFailureHandler: function(onFailure) {
-        this._onFailure = onFailure;
-        return this;
-    },
-    getClientPayload: async function(vigencia, skipStatic) {
-        try {
-            const data = await fetchClientPayload(vigencia, skipStatic);
-            if (this._onSuccess) this._onSuccess(data);
-            return data;
-        } catch (err) {
-            if (this._onFailure) this._onFailure(err);
-            else console.error("Error al obtener datos:", err);
-        }
-    }
-};
+// Shim GAS eliminado (la aplicación ahora opera de forma nativa con JSON local)
 
 const $ = (id) => document.getElementById(id);
 
@@ -221,7 +199,10 @@ const $ = (id) => document.getElementById(id);
                         }
                     }, 400);
                 }
-                procesarNuevosDatos(VIGENCIA_DATA_CACHE[vigencia]);
+                const cached = VIGENCIA_DATA_CACHE[vigencia];
+                if (cached.demo) DEMOGRAFIA_MPO = cached.demo;
+                if (cached.ipm_data) IPM_DATA = cached.ipm_data;
+                procesarNuevosDatos(cached.data || cached);
                 return;
             }
 
@@ -254,8 +235,13 @@ const $ = (id) => document.getElementById(id);
 
                 // Se guarda para que la próxima vez que el usuario vuelva a esta
                 // vigencia, en esta misma sesión, no vuelva a viajar al servidor.
-                VIGENCIA_DATA_CACHE[vigencia] = payload.data;
-
+                if (payload.demo) DEMOGRAFIA_MPO = payload.demo;
+                if (payload.ipm_data) IPM_DATA = payload.ipm_data;
+                VIGENCIA_DATA_CACHE[vigencia] = {
+                    data: payload.data,
+                    demo: payload.demo || DEMOGRAFIA_MPO,
+                    ipm_data: payload.ipm_data || IPM_DATA
+                };
                 procesarNuevosDatos(payload.data);
 
             } catch (err) {
@@ -353,8 +339,12 @@ const $ = (id) => document.getElementById(id);
                     if ($('loadingText')) $('loadingText').textContent = "Iniciando Sistema...";
                 }, 400);
 
+                VIGENCIA_DATA_CACHE["2025"] = {
+                    data: payload.data,
+                    demo: DEMOGRAFIA_MPO,
+                    ipm_data: IPM_DATA
+                };
                 procesarNuevosDatos(payload.data);
-                VIGENCIA_DATA_CACHE["2025"] = payload.data;
 
                 // Abrir el panel lateral automáticamente con la visión global al iniciar
                 if ($('detail-panel')) $('detail-panel').classList.add('open');
@@ -699,14 +689,22 @@ const $ = (id) => document.getElementById(id);
                       <div class="projTag" style="color:${tagColor}; background: ${bgTagColor}">${tag}</div>
 
                     <div class="projMoney">
+                      ${(p.rp < p.fullRp && (state.muni || state.sub)) ? `
+                      <div class="data-row" style="align-items: center; padding-bottom: 6px;">
+                          <div>
+                              <span class="data-label" style="font-size: 12px; font-weight: 800; color: var(--vinotinto); display: block;">${state.muni ? 'Impacto en este municipio' : 'Impacto en esta subregión'}</span>
+                              <span style="font-size: 10px; color: var(--text-muted); font-weight: 600;">Asignación municipal</span>
+                          </div>
+                          <span class="data-value highlight" style="font-size: 17px; font-weight: 900; color: var(--vinotinto);">${fmtCOP(p.rp)}</span>
+                      </div>
+                      <div class="data-row" style="border-top: 1px dashed rgba(148, 163, 184, 0.25); padding-top: 6px; margin-top: 2px;">
+                          <span class="data-label" style="font-size: 10.5px; color: var(--text-muted); font-weight: 600;">Inversión total del proyecto (RP)</span>
+                          <span class="data-value" style="font-size: 11.5px; font-weight: 700; color: #64748b;">${fmtCOP(p.fullRp)}</span>
+                      </div>` : `
                       <div class="data-row">
                           <span class="data-label">Valor de inversión (RP)</span>
                           <span class="data-value highlight">${fmtCOP(p.fullRp)}</span>
-                      </div>
-                      ${(p.rp < p.fullRp && (state.muni || state.sub)) ? `
-                      <div style="font-size:10px; color:var(--text-muted); text-align:right; margin-top:2px; font-weight:700;">
-                          Impacto en ${state.muni ? 'este municipio' : 'esta subregión'}: ${fmtCOP(p.rp)}
-                      </div>` : ''}
+                      </div>`}
                     </div>
 
                     ${bienesHtml}
