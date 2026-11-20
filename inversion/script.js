@@ -26,6 +26,8 @@ const $ = (id) => document.getElementById(id);
             "ROVIRA", "SALDAÑA", "SAN ANTONIO", "SAN LUIS", "SANTA ISABEL", "SUÁREZ", "VALLE DE SAN JUAN",
             "VENADILLO", "VILLAHERMOSA", "VILLARRICA"
         ];
+        // 46 municipios del departamento excluyendo Ibagué (p.ej. Secretaría de Educación - TOLIMA 46)
+        const MUNICIPIOS_TOLIMA_46 = MUNICIPIOS_TOLIMA_CANON.filter(m => m !== "IBAGUÉ");
 
         // DICCIONARIO DE IDs RECONSTRUIDO EXACTO AL ARCHIVO "municipios.csv"
         const MUNI_IDS = {
@@ -114,6 +116,25 @@ const $ = (id) => document.getElementById(id);
         const fmt = n => Number(n).toLocaleString('es-CO');
         const norm = s => String(s || '').trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ');
 
+        // Clasificación territorial de la columna MUNICIPIO:
+        // - TOLIMA 47 MUNICIPIOS / COBERTURA DEPARTAMENTAL -> se divide entre los 47 municipios
+        // - TOLIMA 46 MUNICIPIOS / TOLIMA 46 -> se divide entre los 46 municipios excluyendo Ibagué
+        // - TOLIMA (gastos operativos / gestión departamental) -> NO se divide; solo inversión departamental
+        function isTolima47Muni(muniStr) {
+            const m = norm(muniStr);
+            return m === "COBERTURA DEPARTAMENTAL" || m === "TOLIMA 47 MUNICIPIOS" || m === "TOLIMA 47" || m === "TODOS" || m === "TODO EL DEPARTAMENTO";
+        }
+
+        function isTolima46Muni(muniStr) {
+            const m = norm(muniStr);
+            return m === "TOLIMA 46 MUNICIPIOS" || m === "TOLIMA 46";
+        }
+
+        function isDeptOnlyMuni(muniStr) {
+            const m = norm(muniStr);
+            return m === "TOLIMA" || m === "NIVEL DEPARTAMENTAL" || m === "INVERSION EXTRADEPARTAMENTAL" || m === "SIN ASIGNAR" || m === "";
+        }
+
         function isMuniInSubregion(muniName, subName) {
             if (!subName) return false;
             const subData = DICT_SUBREGIONES[subName];
@@ -135,15 +156,36 @@ const $ = (id) => document.getElementById(id);
 
         function buildSharedProjectsMap() {
             const tempMap = {};
+            const ensure = (key) => {
+                if (!tempMap[key]) {
+                    tempMap[key] = { munis: new Set(), hasDeptOnly: false, has46: false, has47: false };
+                }
+                return tempMap[key];
+            };
+
+            ORIGINAL_DATA.forEach(r => {
+                const entry = ensure(r._key);
+                if (isDeptOnlyMuni(r.muni)) entry.hasDeptOnly = true;
+                if (isTolima46Muni(r.muni)) entry.has46 = true;
+                if (isTolima47Muni(r.muni)) entry.has47 = true;
+            });
+
             RAW_DATA.forEach(r => {
-                if (!tempMap[r._key]) tempMap[r._key] = new Set();
-                if (r.muni) tempMap[r._key].add(r.muni);
+                const entry = ensure(r._key);
+                if (r.muni) entry.munis.add(r.muni);
             });
 
             Object.keys(tempMap).forEach(key => {
+                const entry = tempMap[key];
+                const count = entry.munis.size;
+                const isDeptOnly = (count === 0 && entry.hasDeptOnly);
                 PROJ_SHARED_MAP[key] = {
-                    isShared: tempMap[key].size > 1,
-                    count: tempMap[key].size
+                    isShared: count > 1 || count === 0,
+                    isDeptOnly: isDeptOnly,
+                    hasDeptOnly: entry.hasDeptOnly,
+                    has46: entry.has46,
+                    has47: entry.has47,
+                    count: count
                 };
             });
         }
@@ -416,17 +458,22 @@ const $ = (id) => document.getElementById(id);
                 ORIGINAL_DATA.push({ ...r, estado: r.estado });
 
                 let munis = [];
-                const upperMuni = (r.muni || "").toUpperCase().trim();
 
-                // Se amplía la verificación de cobertura departamental
-                if (upperMuni === "COBERTURA DEPARTAMENTAL" || upperMuni === "TODOS" || upperMuni === "TOLIMA" || upperMuni === "TODO EL DEPARTAMENTO") {
+                // Reglas territoriales:
+                // - TOLIMA 47 MUNICIPIOS / COBERTURA DEPARTAMENTAL -> 47 municipios
+                // - TOLIMA 46 MUNICIPIOS / TOLIMA 46 -> 46 municipios (excluye Ibagué)
+                // - TOLIMA (no divisible) / EXTRADEPARTAMENTAL -> solo inversión departamental (no entra a RAW_DATA municipal)
+                if (isTolima47Muni(r.muni)) {
                     munis = MUNICIPIOS_TOLIMA_CANON;
                 }
-                else if (upperMuni === "INVERSIÓN EXTRADEPARTAMENTAL" || upperMuni === "SIN ASIGNAR") {
+                else if (isTolima46Muni(r.muni)) {
+                    munis = MUNICIPIOS_TOLIMA_46;
+                }
+                else if (isDeptOnlyMuni(r.muni)) {
                     munis = [];
                 }
                 else {
-                    munis = (r.muni || "").split(',').map(x => x.trim());
+                    munis = (r.muni || "").split(',').map(x => x.trim()).filter(Boolean);
                 }
 
                 munis.forEach(m => {
@@ -457,7 +504,7 @@ const $ = (id) => document.getElementById(id);
             ORIGINAL_DATA.forEach(r => secTotalsMap[r.sec] = (secTotalsMap[r.sec] || 0) + (r.fullRp || 0));
 
             state.maxRP = Math.max(...Object.values(muniTotalsMap), 0);
-            state.munisList = MUNICIPIOS_TOLIMA_CANON.sort((a, b) => (muniTotalsMap[b] || 0) - (muniTotalsMap[a] || 0));
+            state.munisList = MUNICIPIOS_TOLIMA_CANON.slice().sort((a, b) => (muniTotalsMap[b] || 0) - (muniTotalsMap[a] || 0));
 
             // Respaldo: si por algún motivo el mapa no se construyó ya en init()
             // (p.ej. MAP_GEOJSON llegó vacío/null en el HTML), se intenta aquí.
@@ -573,15 +620,35 @@ const $ = (id) => document.getElementById(id);
 
                 const secs = Object.values(perSec).sort((a, b) => b.rp - a.rp);
 
+                const deptOnlyRP = isGlobal
+                    ? filteredRows.reduce((sum, r) => sum + (isDeptOnlyMuni(r.muni) ? (r.fullRp || 0) : 0), 0)
+                    : 0;
+                const muniAllocRP = totalRP - deptOnlyRP;
+                const deptBreakdownHtml = (isGlobal && deptOnlyRP > 0) ? `
+                <div style="background:#fffcf4; border:1px solid #e2d5b5; border-left:4px solid var(--vinotinto); border-radius:8px; padding:10px 12px; margin-bottom:16px; font-size:11px; line-height:1.5;">
+                    <div style="display:flex; justify-content:space-between; gap:8px; margin-bottom:3px;">
+                        <span style="color:var(--text-muted); font-weight:700;">📍 Inversión Municipalizable (47 mpos):</span>
+                        <span style="color:var(--text-main); font-weight:800;">${fmtCOP(muniAllocRP)}</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; gap:8px;">
+                        <span style="color:var(--vinotinto); font-weight:700;">🏛️ Nivel Departamental (TOLIMA no divisible):</span>
+                        <span style="color:var(--vinotinto); font-weight:900;">${fmtCOP(deptOnlyRP)}</span>
+                    </div>
+                    <div style="font-size:10px; color:var(--text-muted); margin-top:4px;">
+                        Los recursos registrados como <b>TOLIMA</b> (gastos operativos y gestión transversal) solo se reflejan en el total departamental y no se dividen entre municipios.
+                    </div>
+                </div>` : '';
+
                 let html = `
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
                     <div style="display:flex; gap:6px; flex-wrap:wrap;">
                         <span class="pill" style="background:var(--oro);color:#fff;border:none;">🏛️ ${secs.length} Secs</span>
                         <span class="pill" style="background:#fff;border-color:var(--oro);color:#9c781d;">📈 ${uniqueProjCount} Projs</span>
                         <span class="pill" style="background:#f1f5f9;border-color:var(--border-light);color:var(--text-main);">💰 ${fmtCOP(totalRP)}</span>
                     </div>
                     <button id="btnToggleExclSec" name="btnToggleExclSec" type="button" class="btn-toggle-excl ${state.excl ? 'active' : ''}" onclick="toggleExcl()">${state.excl ? '⭐ Mostrar Todos' : '⭐ Exclusivos Mpo'}</button>
-                </div>`;
+                </div>
+                ${deptBreakdownHtml}`;
 
                 secs.forEach(s => {
                     html += `
@@ -639,14 +706,23 @@ const $ = (id) => document.getElementById(id);
                     let bgTagColor = 'rgba(203, 161, 53, 0.12)';
                     let borderColor = 'var(--oro)';
 
-                    if (p.shareInfo.isShared) {
+                    if (p.shareInfo.isDeptOnly) {
+                        tag = 'NIVEL DEPARTAMENTAL (NO MUNICIPALIZADO)';
+                        tagColor = '#761C33'; bgTagColor = 'rgba(118, 28, 51, 0.10)'; borderColor = '#761C33';
+                    } else if (p.shareInfo.isShared) {
                         if (p.shareInfo.count >= 47) {
-                            tag = 'COBERTURA DEPARTAMENTAL';
+                            tag = 'COBERTURA DEPARTAMENTAL (47 MPOS)';
                             tagColor = '#64748b'; bgTagColor = '#f1f5f9'; borderColor = 'transparent';
+                        } else if (p.shareInfo.count === 46 && p.shareInfo.has46) {
+                            tag = 'COBERTURA DEPARTAMENTAL (46 MPOS - SIN IBAGUÉ)';
+                            tagColor = '#475569'; bgTagColor = '#e2e8f0'; borderColor = 'transparent';
                         } else {
                             tag = `COMPARTIDO (${p.shareInfo.count} MUNICIPIOS)`;
                             tagColor = '#64748b'; bgTagColor = '#f1f5f9'; borderColor = 'transparent';
                         }
+                    } else if (isGlobal && p.shareInfo.hasDeptOnly) {
+                        tag = 'MUNICIPAL + NIVEL DEPARTAMENTAL';
+                        tagColor = '#761C33'; bgTagColor = 'rgba(118, 28, 51, 0.10)'; borderColor = 'var(--oro)';
                     }
 
                     const bienesSet = new Set();
@@ -1092,6 +1168,10 @@ const $ = (id) => document.getElementById(id);
             const isGlobal = (baseArray === ORIGINAL_DATA);
             const totalRP = geoRows.reduce((sum, r) => sum + (isGlobal ? r.fullRp : r.rp), 0);
             const totalOP = geoRows.reduce((sum, r) => sum + (isGlobal ? r.fullOp : r.op), 0);
+            const printDeptOnlyRP = isGlobal
+                ? geoRows.reduce((sum, r) => sum + (isDeptOnlyMuni(r.muni) ? (r.fullRp || 0) : 0), 0)
+                : 0;
+            const printMuniAllocRP = totalRP - printDeptOnlyRP;
 
             let invTitleLabel = "INVERSIÓN TOTAL DEPARTAMENTAL (RP)";
             if (state.muni) invTitleLabel = "INVERSIÓN TOTAL EN " + state.muni.toUpperCase();
@@ -1583,6 +1663,15 @@ const $ = (id) => document.getElementById(id);
                                 <div class="print-kpi-label">Proyectos Registrados</div>
                                 <div class="print-kpi-value">${totalProjs}</div>
                             </div>
+                            ${(isGlobal && printDeptOnlyRP > 0) ? `
+                            <div class="print-kpi-card" style="border-top-color: #CBA135;">
+                                <div class="print-kpi-label">Inversión Municipalizable (47 Mpos)</div>
+                                <div class="print-kpi-value">${fmtCOP(printMuniAllocRP)}</div>
+                            </div>
+                            <div class="print-kpi-card" style="border-top-color: #761C33;">
+                                <div class="print-kpi-label">Nivel Departamental (TOLIMA no divisible)</div>
+                                <div class="print-kpi-value" style="color: #761C33;">${fmtCOP(printDeptOnlyRP)}</div>
+                            </div>` : ''}
                         </div>
                     </div>
 
