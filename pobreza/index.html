@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -13,7 +13,7 @@
         rel="stylesheet">
 
     <!-- Enlace al CSS unificado en la carpeta raíz -->
-    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../style.css?v=20261120b">
 </head>
 
 <body>
@@ -55,7 +55,10 @@
 
                 <div class="controls-area">
                     <div class="filter-group">
-                        <label>Vigencia de Datos (Periodo)</label>
+                        <label>
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>
+                            <span>Vigencia de Datos (Periodo)</span>
+                        </label>
                         <div class="vigencias-btn-group">
                             <button id="btnVigencia2026-1" class="btn-vigencia active"
                                 onclick="cambiarVigencia('2026-1')">2026-1</button>
@@ -65,9 +68,12 @@
                     </div>
 
                     <div class="filter-group">
-                        <label for="subregionFilter">Subregión</label>
+                        <label for="subregionFilter">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+                            <span>Subregión</span>
+                        </label>
                         <select id="subregionFilter">
-                            <option value="">📍 Todas las Subregiones</option>
+                            <option value="">Todas las Subregiones</option>
                             <option value="Centro">Subregión Centro</option>
                             <option value="Nevados">Subregión Nevados</option>
                             <option value="Norte">Subregión Norte</option>
@@ -78,27 +84,27 @@
                     </div>
 
                     <div class="filter-group">
-                        <label for="muniFilter">Seleccionar Municipio</label>
+                        <label for="muniFilter">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
+                            <span>Seleccionar Municipio</span>
+                        </label>
                         <select id="muniFilter">
-                            <option value="TOLIMA">📊 Visión Global del Tolima</option>
+                            <option value="TOLIMA">Visión Global del Tolima</option>
                         </select>
                     </div>
 
                     <div class="map-toggles-container">
                         <button id="btnSubmap" class="btn-map-toggle">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
-                                <circle cx="12" cy="10" r="3"></circle>
+                                stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/>
                             </svg>
                             <span>Subregiones</span>
                         </button>
                         <button id="btnHeatmap" class="btn-map-toggle">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
-                                <line x1="8" y1="2" x2="8" y2="18"></line>
-                                <line x1="16" y1="6" x2="16" y2="22"></line>
+                                stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
                             </svg>
                             <span>Calor (IPM)</span>
                         </button>
@@ -147,7 +153,7 @@
     </div>
 
     <script src="../geo.js" defer></script>
-    <script src="script.js" defer></script>
+    <script src="script.js?v=20261120b" defer></script>
 </body>
 
 </html>

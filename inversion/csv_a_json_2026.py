@@ -18,7 +18,7 @@ import shutil
 import unicodedata
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-CSV = os.path.join(BASE_DIR, '2026 - Inversion por Municipios CONSOLIDADO 30 SEP V1.csv')
+CSV = os.path.join(BASE_DIR, '2026 - Inversion por Municipios CONSOLIDADO 30 SEP V2.csv')
 OUT = os.path.join(BASE_DIR, 'datos_2026.json')
 
 

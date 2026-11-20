@@ -32,8 +32,15 @@ const formatPct = v => (v == null || v === "" || v === "-") ? "-" : (String(v).i
 const formatHab = v => (v == null || v === "" || v === "-") ? "-" : parseInt(String(v).replace(/\D/g, ''), 10).toLocaleString('es-CO');
 
 function getIconForDimension(d) {
-    const m = { "EDUCACION": "📚", "INFANCIA Y JUVENTUD": "🧸", "TRABAJO - INGRESO": "💼", "SALUD": "🏥", "VIVIENDA SERVICIOS PUBLICOS - HABITABILIDAD": "🏠" };
-    return m[d] || "📊";
+    const svgWrap = (inner) => `<span class="dim-icon-box"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">${inner}</svg></span>`;
+    const m = {
+        "EDUCACION": svgWrap('<path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/>'),
+        "INFANCIA Y JUVENTUD": svgWrap('<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>'),
+        "TRABAJO - INGRESO": svgWrap('<path d="M12 12h.01"/><path d="M16 6V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><path d="M22 13a18.15 18.15 0 0 1-20 0"/><rect width="20" height="14" x="2" y="6" rx="2"/>'),
+        "SALUD": svgWrap('<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><path d="M3.22 12H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27"/>'),
+        "VIVIENDA SERVICIOS PUBLICOS - HABITABILIDAD": svgWrap('<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>')
+    };
+    return m[d] || svgWrap('<path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>');
 }
 
 function isMuniInSubregion(muniName, subName) {
@@ -304,7 +311,7 @@ function renderDetailPanel(m) {
     if (!d?.stats) return b.innerHTML = `<div style="text-align:center;color:var(--text-muted);margin-top:40px;">No hay datos.</div>`;
 
     let h = `<div class="projCard" style="border-left: 4px solid var(--vinotinto);">
-    <div class="projName"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg> Resumen de Pobreza</div>
+    <div class="projName" style="display:flex;align-items:center;gap:10px;margin-bottom:6px;"><span class="dim-icon-box"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></span><span>Resumen de Pobreza</span></div>
     <div class="data-row"><span class="data-label">Habitantes Sisbén</span><span class="data-value">${formatHab(d.stats.habitantes)}</span></div>
     ${[['IPM Total', d.stats.ipmTotal, 'highlight'], ['Pobreza extrema', d.stats.ipmExtremo], ['Pobreza moderada', d.stats.ipmModerado], ['Vulnerable', d.stats.ipmVulnerable], ['No pobre', d.stats.noPobre]]
             .map(([l, v, c]) => `<div class="data-row" ${l === 'IPM Total' ? 'style="border-top:2px solid rgba(118,28,51,0.1);margin-top:4px;"' : ''}><span class="data-label" ${l === 'IPM Total' ? 'style="color:var(--vinotinto);font-weight:800;"' : ''}>${l}</span><span class="data-value ${c || ''}">${formatPct(v)}</span></div>`).join('')}
@@ -312,7 +319,7 @@ function renderDetailPanel(m) {
 
     Object.entries(d.dimensiones).forEach(([dim, inds]) => {
         if (inds && inds.length > 0) {
-            h += `<div class="projCard"><div class="projName">${getIconForDimension(dim)} ${toSentenceCase(dim)}</div>
+            h += `<div class="projCard"><div class="projName" style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">${getIconForDimension(dim)}<span>${toSentenceCase(dim)}</span></div>
         ${inds.map(i => `<div class="data-row"><span class="data-label">${toSentenceCase(i.nombre)}</span><span class="data-value">${formatPct(i.valor)}</span></div>`).join('')}</div>`;
         }
     });
@@ -321,7 +328,7 @@ function renderDetailPanel(m) {
 
 function populateMuniFilter() {
     const mS = $('muniFilter');
-    mS.innerHTML = '<option value="TOLIMA">📊 Visión Global del Tolima</option>';
+    mS.innerHTML = '<option value="TOLIMA">Visión Global del Tolima</option>';
     state.munisList.forEach(m => {
         if (!state.subregion || isMuniInSubregion(m, state.subregion)) {
             mS.innerHTML += `<option value="${m}">${DATOS_IPM[m].nombreReal}</option>`;

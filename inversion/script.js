@@ -17,6 +17,53 @@ async function fetchClientPayload(vigencia, skipStatic = false) {
 
 const $ = (id) => document.getElementById(id);
 
+// Iconografía vectorial moderna basada en Lucide Icons (open-source, ISC License)
+const lucideSvg = (paths, size = 13, extraStyle = "vertical-align:-2px;margin-right:4px;flex-shrink:0;") =>
+    `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.15" stroke-linecap="round" stroke-linejoin="round" style="${extraStyle}">${paths}</svg>`;
+
+const UI_ICON = {
+    landmark: lucideSvg('<path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/>'),
+    mapPin: lucideSvg('<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>'),
+    trending: lucideSvg('<path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/>'),
+    wallet: lucideSvg('<circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 18V6"/>'),
+    star: lucideSvg('<path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/>', 12),
+    chevronDown: lucideSvg('<path d="m6 9 6 6 6-6"/>', 13, 'vertical-align:-2px;margin-left:4px;flex-shrink:0;'),
+    layers: lucideSvg('<path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/>', 11, 'vertical-align:-1px;margin-right:4px;flex-shrink:0;opacity:0.75;'),
+    cpu: lucideSvg('<rect width="16" height="16" x="4" y="4" rx="2"/><rect width="6" height="6" x="9" y="9" rx="1"/><path d="M15 2v2"/><path d="M15 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M9 2v2"/><path d="M9 20v2"/>', 11, 'flex-shrink:0;'),
+    globe: lucideSvg('<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>', 11, 'flex-shrink:0;'),
+    share: lucideSvg('<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/>', 11, 'flex-shrink:0;'),
+    pinCheck: lucideSvg('<path d="M19.43 12.935c.357-.967.57-1.955.57-2.935a8 8 0 0 0-16 0c0 4.993 5.539 10.193 7.399 11.799a1 1 0 0 0 1.202 0 32.197 32.197 0 0 0 .813-.728"/><circle cx="12" cy="10" r="3"/><path d="m16 18 2 2 4-4"/>', 11, 'flex-shrink:0;'),
+    packageCheck: lucideSvg('<path d="m16 16 2 2 4-4"/><path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14"/><path d="m7.5 4.27 9 5.15"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" x2="12" y1="22" y2="12"/>', 12, 'vertical-align:-2px;margin-right:4px;flex-shrink:0;')
+};
+
+function getSecIcon(secName) {
+    const s = norm(secName);
+    let paths = '<path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/>';
+    if (s.includes("EDUCAC")) paths = '<path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/>';
+    else if (s.includes("SALUD")) paths = '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><path d="M3.22 12H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27"/>';
+    else if (s.includes("INFRAESTRUCTURA")) paths = '<circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/><circle cx="18" cy="5" r="3"/>';
+    else if (s.includes("PLANEAC") || s.includes("TIC")) paths = '<rect width="16" height="16" x="4" y="4" rx="2"/><rect width="6" height="6" x="9" y="9" rx="1"/><path d="M15 2v2"/><path d="M15 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M9 2v2"/><path d="M9 20v2"/>';
+    else if (s.includes("AGROPECUARI")) paths = '<path d="M7 20h10"/><path d="M10 20c5.5-2.5.8-6.4 3-10"/><path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z"/><path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z"/>';
+    else if (s.includes("AMBIENTE") || s.includes("RIESGO")) paths = '<path d="M10 10v.2A3 3 0 0 1 8.9 16H5a3 3 0 0 1-1-5.8V10a3 3 0 0 1 6 0Z"/><path d="M7 16v6"/><path d="M13 19v3"/><path d="M12 19h8.3a1 1 0 0 0 .7-1.7L18 14h.3a1 1 0 0 0 .7-1.7L16 9h.2a1 1 0 0 0 .8-1.7L13 3l-1.4 1.5"/>';
+    // Secretaría de Cultura y Turismo -> Máscaras de teatro (Lucide drama)
+    else if (s.includes("CULTURA") || s.includes("TURISMO")) paths = '<path d="M10 11h.01"/><path d="M14 6h.01"/><path d="M18 6h.01"/><path d="M6.5 13.1h.01"/><path d="M22 5c0 9-4 12-6 12s-6-3-6-12c0-2 2-3 6-3s6 1 6 3"/><path d="M17.4 9.9c-.8.8-2 .8-2.8 0"/><path d="M10.1 7.1C9 7.2 7.7 7.7 6 8.6c-3.5 2-4.7 3.9-3.7 5.6 4.5 7.8 9.5 8.4 11.2 7.4.9-.5 1.9-2.1 1.9-4.7"/><path d="M9.1 16.5c.3-1.1 1.4-1.7 2.4-1.4"/>';
+    else if (s.includes("INDEPORTES")) paths = '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>';
+    else if (s.includes("EDAT")) paths = '<path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/>';
+    // Secretaría de Desarrollo Económico -> Gráfico de crecimiento económico (ejes + barras ascendentes + flecha de tendencia)
+    else if (s.includes("ECONOMICO")) paths = '<path d="M3 3v18h18"/><path d="M7 17v-3"/><path d="M11 17v-5"/><path d="M15 17v-7"/><path d="M19 17V8"/><path d="m6 11 4-3 3 2 6-6"/><path d="M15 4h4v4"/>';
+    else if (s.includes("INCLUS") || s.includes("POBLACIONAL")) paths = '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><path d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08c.82.82 2.13.85 3 .07l2.07-1.9a2.82 2.82 0 0 1 3.79 0l2.96 2.66"/><path d="m18 15-2-2"/><path d="m15 18-2-2"/>';
+    // Secretaría del Interior -> Grupo de personas (Lucide users)
+    else if (s.includes("INTERIOR")) paths = '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>';
+    else if (s.includes("CONVIVENCIA") || s.includes("SEGURIDAD")) paths = '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>';
+    // Secretaría de la Mujer -> Símbolo de Venus (Lucide venus)
+    else if (s.includes("MUJER")) paths = '<path d="M12 15v7"/><path d="M9 19h6"/><circle cx="12" cy="9" r="6"/>';
+    // Secretaría de Tránsito y Transporte -> Automóvil (Lucide car)
+    else if (s.includes("TRANSITO") || s.includes("TRANSPORTE")) paths = '<path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/>';
+    // Secretaría de Hacienda -> Pila de monedas
+    else if (s.includes("HACIENDA")) paths = '<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/><path d="M4 9.67c0 1.66 3.58 3 8 3s8-1.34 8-3"/><path d="M4 14.33c0 1.66 3.58 3 8 3s8-1.34 8-3"/>';
+    return `<span class="sec-icon-box"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">${paths}</svg></span>`;
+}
+
         const MUNICIPIOS_TOLIMA_CANON = [
             "ALPUJARRA", "ALVARADO", "AMBALEMA", "ANZOÁTEGUI", "ARMERO GUAYABAL", "ATACO", "CAJAMARCA",
             "CARMEN DE APICALÁ", "CASABIANCA", "CHAPARRAL", "COELLO", "COYAIMA", "CUNDAY", "DOLORES",
@@ -133,6 +180,16 @@ const $ = (id) => document.getElementById(id);
         function isDeptOnlyMuni(muniStr) {
             const m = norm(muniStr);
             return m === "TOLIMA" || m === "NIVEL DEPARTAMENTAL" || m === "INVERSION EXTRADEPARTAMENTAL" || m === "SIN ASIGNAR" || m === "";
+        }
+
+        function getRowAmount(r, isGlobal) {
+            if (state.fuente) {
+                const fVal = r[state.fuente] || 0;
+                if (isGlobal) return fVal;
+                const sp = r.split || 1;
+                return sp > 0 ? (fVal / sp) : 0;
+            }
+            return isGlobal ? (r.fullRp || 0) : (r.rp || 0);
         }
 
         function isMuniInSubregion(muniName, subName) {
@@ -295,8 +352,8 @@ const $ = (id) => document.getElementById(id);
 
                 if (btn) { btn.classList.remove('active'); }
 
-                if (vigencia !== '2025') {
-                    setTimeout(() => cambiarVigencia('2025'), 2000);
+                if (vigencia !== '2026') {
+                    setTimeout(() => cambiarVigencia('2026'), 2000);
                 } else {
                     setTimeout(() => {
                         if ($('loader')) $('loader').style.opacity = '0';
@@ -367,8 +424,8 @@ const $ = (id) => document.getElementById(id);
             if ($('loadingText')) $('loadingText').textContent = "Cargando Monitor Territorial del Tolima...";
 
             try {
-                // Carga inicial de datos desde datos_2025.json
-                const payload = await fetchClientPayload("2025", false);
+                // Carga inicial de datos desde datos_2026.json
+                const payload = await fetchClientPayload("2026", false);
 
                 if (!payload || !payload.ok) throw new Error(payload ? payload.error : "Error de conexión.");
 
@@ -381,7 +438,7 @@ const $ = (id) => document.getElementById(id);
                     if ($('loadingText')) $('loadingText').textContent = "Iniciando Sistema...";
                 }, 400);
 
-                VIGENCIA_DATA_CACHE["2025"] = {
+                VIGENCIA_DATA_CACHE["2026"] = {
                     data: payload.data,
                     demo: DEMOGRAFIA_MPO,
                     ipm_data: IPM_DATA
@@ -451,8 +508,14 @@ const $ = (id) => document.getElementById(id);
             PROJ_SHARED_MAP = {};
 
             fetchedData.forEach((r, index) => {
-                // Se agrega '_index' para diferenciar proyectos sin BPIN
-                const key = r.pid ? norm(r.pid) : norm(r.sec + "_" + r.pname) + "_" + index;
+                // Se separa la llave por BPIN + alcance territorial original (r.muni),
+                // para no mezclar en una misma tarjeta contratos 100% exclusivos de un municipio (split=1)
+                // con contratos compartidos o de cobertura departamental (split=46 o 47) del mismo BPIN.
+                const baseKey = r.pid ? norm(r.pid) : norm(r.sec + "_" + r.pname) + "_" + index;
+                const origScope = norm(r.muni || "SIN_MUNI");
+                const key = baseKey + "__" + origScope;
+                r._pidKey = baseKey;
+                r._origMuni = r.muni || "";
                 r._key = key;
 
                 ORIGINAL_DATA.push({ ...r, estado: r.estado });
@@ -514,7 +577,7 @@ const $ = (id) => document.getElementById(id);
             // refresca el estilo/orden visual con updateMapStyles() más abajo.
 
             if ($('subFilter')) {
-                $('subFilter').innerHTML = '<option value="">🗺️ Visión Global del Tolima</option>';
+                $('subFilter').innerHTML = '<option value="">Visión Global del Tolima</option>';
                 Object.keys(DICT_SUBREGIONES).sort((a, b) => subTotalsMap[b] - subTotalsMap[a]).forEach(s => {
                     $('subFilter').innerHTML += '<option value="' + s + '">Subregión ' + s + '</option>';
                 });
@@ -523,7 +586,7 @@ const $ = (id) => document.getElementById(id);
             updateMuniDropdown();
 
             if ($('secFilter')) {
-                $('secFilter').innerHTML = '<option value="">📋 Todas las Dependencias o Entidades</option>';
+                $('secFilter').innerHTML = '<option value="">Todas las Dependencias o Entidades</option>';
                 [...new Set(ORIGINAL_DATA.map(r => r.sec))].sort((a, b) => (secTotalsMap[b] || 0) - (secTotalsMap[a] || 0)).forEach(s => {
                     $('secFilter').innerHTML += '<option value="' + s + '">' + s + '</option>';
                 });
@@ -578,9 +641,9 @@ const $ = (id) => document.getElementById(id);
 
             if (state.sec) {
                 const secRows = geoRows.filter(r => r.sec === state.sec);
-                updateKPI(secRows.reduce((sum, r) => sum + (isGlobal ? r.fullRp : r.rp), 0), state.sec);
+                updateKPI(secRows.reduce((sum, r) => sum + getRowAmount(r, isGlobal), 0), state.sec);
             } else {
-                updateKPI(geoRows.reduce((sum, r) => sum + (isGlobal ? r.fullRp : r.rp), 0), geoLabel);
+                updateKPI(geoRows.reduce((sum, r) => sum + getRowAmount(r, isGlobal), 0), geoLabel);
             }
 
             renderDetailPanel(geoRows, panelTitleText, isGlobal);
@@ -594,7 +657,7 @@ const $ = (id) => document.getElementById(id);
                 $('btnBackMuni').style.display = state.muni ? 'inline-flex' : 'none';
             }
 
-            const totalRP = filteredRows.reduce((sum, r) => sum + (isGlobal ? r.fullRp : r.rp), 0);
+            const totalRP = filteredRows.reduce((sum, r) => sum + getRowAmount(r, isGlobal), 0);
 
             if (!state.sec) {
                 $('panelSub').textContent = 'Matriz por Dependencia';
@@ -604,58 +667,67 @@ const $ = (id) => document.getElementById(id);
                 let uniqueProjCount = 0;
                 const globalCountedKeys = new Set();
 
+                const getSummaryKey = (r) => {
+                    const info = PROJ_SHARED_MAP[r._key];
+                    if (!state.muni && info && !info.isShared && !info.isDeptOnly) {
+                        return r._pidKey + "__MUNI_EXCL";
+                    }
+                    return r._key;
+                };
+
                 for (const row of filteredRows) {
                     if (!perSec[row.sec]) perSec[row.sec] = { sec: row.sec, rp: 0, count: 0, localKeys: new Set() };
-                    perSec[row.sec].rp += (isGlobal ? row.fullRp : row.rp);
+                    perSec[row.sec].rp += getRowAmount(row, isGlobal);
+                    const sk = getSummaryKey(row);
 
-                    if (!globalCountedKeys.has(row._key)) {
+                    if (!globalCountedKeys.has(sk)) {
                         uniqueProjCount++;
-                        globalCountedKeys.add(row._key);
+                        globalCountedKeys.add(sk);
                     }
-                    if (!perSec[row.sec].localKeys.has(row._key)) {
+                    if (!perSec[row.sec].localKeys.has(sk)) {
                         perSec[row.sec].count++;
-                        perSec[row.sec].localKeys.add(row._key);
+                        perSec[row.sec].localKeys.add(sk);
                     }
                 }
 
                 const secs = Object.values(perSec).sort((a, b) => b.rp - a.rp);
 
                 const deptOnlyRP = isGlobal
-                    ? filteredRows.reduce((sum, r) => sum + (isDeptOnlyMuni(r.muni) ? (r.fullRp || 0) : 0), 0)
+                    ? filteredRows.reduce((sum, r) => sum + (isDeptOnlyMuni(r.muni) ? getRowAmount(r, true) : 0), 0)
                     : 0;
                 const muniAllocRP = totalRP - deptOnlyRP;
                 const deptBreakdownHtml = (isGlobal && deptOnlyRP > 0) ? `
                 <div style="background:#fffcf4; border:1px solid #e2d5b5; border-left:4px solid var(--vinotinto); border-radius:8px; padding:10px 12px; margin-bottom:16px; font-size:11px; line-height:1.5;">
-                    <div style="display:flex; justify-content:space-between; gap:8px; margin-bottom:3px;">
-                        <span style="color:var(--text-muted); font-weight:700;">📍 Inversión Municipalizable (47 mpos):</span>
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:3px;">
+                        <span style="color:var(--text-muted); font-weight:700; display:inline-flex; align-items:center;">${UI_ICON.mapPin}Inversión con Impacto Municipal:</span>
                         <span style="color:var(--text-main); font-weight:800;">${fmtCOP(muniAllocRP)}</span>
                     </div>
-                    <div style="display:flex; justify-content:space-between; gap:8px;">
-                        <span style="color:var(--vinotinto); font-weight:700;">🏛️ Nivel Departamental (TOLIMA no divisible):</span>
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+                        <span style="color:var(--vinotinto); font-weight:700; display:inline-flex; align-items:center;">${UI_ICON.landmark}Inversión de Alcance Departamental:</span>
                         <span style="color:var(--vinotinto); font-weight:900;">${fmtCOP(deptOnlyRP)}</span>
-                    </div>
-                    <div style="font-size:10px; color:var(--text-muted); margin-top:4px;">
-                        Los recursos registrados como <b>TOLIMA</b> (gastos operativos y gestión transversal) solo se reflejan en el total departamental y no se dividen entre municipios.
                     </div>
                 </div>` : '';
 
                 let html = `
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
                     <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                        <span class="pill" style="background:var(--oro);color:#fff;border:none;">🏛️ ${secs.length} Secs</span>
-                        <span class="pill" style="background:#fff;border-color:var(--oro);color:#9c781d;">📈 ${uniqueProjCount} Projs</span>
-                        <span class="pill" style="background:#f1f5f9;border-color:var(--border-light);color:var(--text-main);">💰 ${fmtCOP(totalRP)}</span>
+                        <span class="pill" style="background:var(--oro);color:#fff;border:none;display:inline-flex;align-items:center;">${UI_ICON.landmark}${secs.length} Secs</span>
+                        <span class="pill" style="background:#fff;border-color:var(--oro);color:#9c781d;display:inline-flex;align-items:center;">${UI_ICON.trending}${uniqueProjCount} Projs</span>
+                        <span class="pill" style="background:#f1f5f9;border-color:var(--border-light);color:var(--text-main);display:inline-flex;align-items:center;">${UI_ICON.wallet}${fmtCOP(totalRP)}</span>
                     </div>
-                    <button id="btnToggleExclSec" name="btnToggleExclSec" type="button" class="btn-toggle-excl ${state.excl ? 'active' : ''}" onclick="toggleExcl()">${state.excl ? '⭐ Mostrar Todos' : '⭐ Exclusivos Mpo'}</button>
+                    <button id="btnToggleExclSec" name="btnToggleExclSec" type="button" class="btn-toggle-excl ${state.excl ? 'active' : ''}" onclick="toggleExcl()" style="display:inline-flex;align-items:center;">${UI_ICON.star}${state.excl ? 'Mostrar Todos' : 'Exclusivos Mpo'}</button>
                 </div>
                 ${deptBreakdownHtml}`;
 
                 secs.forEach(s => {
                     html += `
                     <div class="secItem" onclick="selectSec('${s.sec.replace(/'/g, "\\'")}')">
-                        <div>
-                            <div class="secName">${s.sec}</div>
-                            <div class="secMeta">${s.count} proyectos vinculados</div>
+                        <div class="secItem-left">
+                            ${getSecIcon(s.sec)}
+                            <div style="min-width:0;flex:1;">
+                                <div class="secName">${s.sec}</div>
+                                <div class="secMeta" style="display:flex;align-items:center;">${UI_ICON.layers}<span>${s.count} ${s.count === 1 ? 'proyecto vinculado' : 'proyectos vinculados'}</span></div>
+                            </div>
                         </div>
                         <div class="card-money">${fmtCOP(s.rp)}</div>
                     </div>`;
@@ -669,31 +741,60 @@ const $ = (id) => document.getElementById(id);
                 const projsMap = {};
                 const secRows = filteredRows.filter(r => r.sec === state.sec);
 
+                // En vista municipal, cada alcance (_key) es único. En vista subregional o global,
+                // los registros exclusivos municipales (count === 1) del mismo BPIN se agrupan en una
+                // tarjeta "EXCLUSIVO MUNICIPAL" de ese BPIN para no repetir 47 tarjetas individuales.
+                const getCardKey = (r) => {
+                    const info = PROJ_SHARED_MAP[r._key];
+                    if (!state.muni && info && !info.isShared && !info.isDeptOnly) {
+                        return r._pidKey + "__MUNI_EXCL";
+                    }
+                    return r._key;
+                };
+
+                // Total real de cada alcance territorial desde ORIGINAL_DATA (sin parcializar ni duplicar en subregiones)
+                const scopeProjTotals = {};
+                for (const r of ORIGINAL_DATA) {
+                    if (r.sec !== state.sec) continue;
+                    if (state.excl && PROJ_SHARED_MAP[r._key].isShared) continue;
+                    if (state.fuente && !(r[state.fuente] > 0)) continue;
+                    if (state.sub && !state.muni) {
+                        const info = PROJ_SHARED_MAP[r._key];
+                        // Para exclusivos municipales dentro de una subregión, el total de la tarjeta es la suma exclusiva en esa subregión
+                        if (info && !info.isShared && !info.isDeptOnly && !isMuniInSubregion(r._origMuni, state.sub)) continue;
+                    }
+                    const ck = getCardKey(r);
+                    scopeProjTotals[ck] = (scopeProjTotals[ck] || 0) + getRowAmount(r, true);
+                }
+
                 for (const row of secRows) {
-                    if (!projsMap[row._key]) {
-                        projsMap[row._key] = {
+                    const ck = getCardKey(row);
+                    if (!projsMap[ck]) {
+                        projsMap[ck] = {
                             pname: row.pname, bpin: row.pid, sec: row.sec,
                             shareInfo: PROJ_SHARED_MAP[row._key],
-                            fullRp: 0, fullOp: 0, rp: 0, op: 0, // Todas inician en 0
-                            estado: row.estado
+                            fullRp: scopeProjTotals[ck] || 0, fullOp: 0, rp: 0, op: 0,
+                            estado: row.estado,
+                            bienesSet: new Set()
                         };
                     }
-                    // Acumulamos += para sumar todas las fuentes de financiación
-                    projsMap[row._key].fullRp += (row.fullRp || 0);
-                    projsMap[row._key].fullOp += (row.fullOp || 0);
-                    projsMap[row._key].rp += (isGlobal ? (row.fullRp || 0) : (row.rp || 0));
-                    projsMap[row._key].op += (isGlobal ? (row.fullOp || 0) : (row.op || 0));
+                    projsMap[ck].fullOp += (row.fullOp || 0);
+                    projsMap[ck].rp += getRowAmount(row, isGlobal);
+                    projsMap[ck].op += (isGlobal ? (row.fullOp || 0) : (row.op || 0));
+                    if (row.bien && row.bien.trim() !== "") {
+                        projsMap[ck].bienesSet.add(row.bien.trim());
+                    }
                 }
 
                 const projs = Object.values(projsMap).sort((a, b) => {
                     if (a.shareInfo.isShared !== b.shareInfo.isShared) return a.shareInfo.isShared ? 1 : -1;
-                    return b.fullRp - a.fullRp;
+                    return b.rp - a.rp;
                 });
 
                 let html = `
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
                     <span class="pill" style="background:var(--vinotinto);color:#fff;border:none;margin-bottom:0;">Proyectos de Dependencia: ${projs.length}</span>
-                    <button id="btnToggleExclProj" name="btnToggleExclProj" type="button" class="btn-toggle-excl ${state.excl ? 'active' : ''}" onclick="toggleExcl()" style="margin-bottom:0;">${state.excl ? '⭐ Mostrar Todos' : '⭐ Exclusivos Mpo'}</button>
+                    <button id="btnToggleExclProj" name="btnToggleExclProj" type="button" class="btn-toggle-excl ${state.excl ? 'active' : ''}" onclick="toggleExcl()" style="margin-bottom:0;display:inline-flex;align-items:center;">${UI_ICON.star}${state.excl ? 'Mostrar Todos' : 'Exclusivos Mpo'}</button>
                 </div>`;
 
                 if (projs.length === 0) {
@@ -701,35 +802,31 @@ const $ = (id) => document.getElementById(id);
                 }
 
                 projs.forEach(p => {
-                    let tag = 'EXCLUSIVO MUNICIPAL';
+                    let tag = `${UI_ICON.pinCheck}<span>EXCLUSIVO MUNICIPAL</span>`;
                     let tagColor = 'var(--oro)';
                     let bgTagColor = 'rgba(203, 161, 53, 0.12)';
                     let borderColor = 'var(--oro)';
 
                     if (p.shareInfo.isDeptOnly) {
-                        tag = 'NIVEL DEPARTAMENTAL (NO MUNICIPALIZADO)';
+                        tag = `${UI_ICON.landmark}<span>NIVEL DEPARTAMENTAL (NO MUNICIPALIZADO)</span>`;
                         tagColor = '#761C33'; bgTagColor = 'rgba(118, 28, 51, 0.10)'; borderColor = '#761C33';
                     } else if (p.shareInfo.isShared) {
                         if (p.shareInfo.count >= 47) {
-                            tag = 'COBERTURA DEPARTAMENTAL (47 MPOS)';
+                            tag = `${UI_ICON.globe}<span>COBERTURA DEPARTAMENTAL (47 MPOS)</span>`;
                             tagColor = '#64748b'; bgTagColor = '#f1f5f9'; borderColor = 'transparent';
                         } else if (p.shareInfo.count === 46 && p.shareInfo.has46) {
-                            tag = 'COBERTURA DEPARTAMENTAL (46 MPOS - SIN IBAGUÉ)';
+                            tag = `${UI_ICON.globe}<span>COBERTURA DEPARTAMENTAL (46 MPOS)</span>`;
                             tagColor = '#475569'; bgTagColor = '#e2e8f0'; borderColor = 'transparent';
                         } else {
-                            tag = `COMPARTIDO (${p.shareInfo.count} MUNICIPIOS)`;
+                            tag = `${UI_ICON.share}<span>COMPARTIDO (${p.shareInfo.count} MUNICIPIOS)</span>`;
                             tagColor = '#64748b'; bgTagColor = '#f1f5f9'; borderColor = 'transparent';
                         }
                     } else if (isGlobal && p.shareInfo.hasDeptOnly) {
-                        tag = 'MUNICIPAL + NIVEL DEPARTAMENTAL';
+                        tag = `${UI_ICON.landmark}<span>MUNICIPAL + NIVEL DEPARTAMENTAL</span>`;
                         tagColor = '#761C33'; bgTagColor = 'rgba(118, 28, 51, 0.10)'; borderColor = 'var(--oro)';
                     }
 
-                    const bienesSet = new Set();
-                    ORIGINAL_DATA.filter(r => (p.bpin ? r.pid === p.bpin : r.pname === p.pname && r.sec === p.sec) && r.bien && r.bien.trim() !== "")
-                        .forEach(r => bienesSet.add(r.bien.trim()));
-
-                    const bienesList = Array.from(bienesSet);
+                    const bienesList = Array.from(p.bienesSet || []);
                     let bienesHtml = "";
 
                     if (bienesList.length > 0) {
@@ -764,11 +861,13 @@ const $ = (id) => document.getElementById(id);
                               ${p.estado || 'SIN DEFINIR'}
                           </div>
                       </div>
-                      ${p.bpin ? `<div style="margin-top:8px;color:var(--text-muted);font-size:11px;font-weight:700;letter-spacing:0.5px;">BPIN: ${p.bpin}</div>` : ''}
-                      <div class="projTag" style="color:${tagColor}; background: ${bgTagColor}">${tag}</div>
+                      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:4px;">
+                          ${p.bpin ? `<span class="bpin-chip">${UI_ICON.cpu}<span>BPIN: ${p.bpin}</span></span>` : ''}
+                          <div class="projTag" style="color:${tagColor}; background: ${bgTagColor}; margin-top:8px;">${tag}</div>
+                      </div>
 
                     <div class="projMoney">
-                      ${(p.rp < p.fullRp && (state.muni || state.sub)) ? `
+                      ${(p.rp < p.fullRp - 1 && (state.muni || state.sub)) ? `
                       <div class="data-row" style="align-items: center; padding-bottom: 6px;">
                           <div>
                               <span class="data-label" style="font-size: 12px; font-weight: 800; color: var(--vinotinto); display: block;">${state.muni ? 'Impacto en este municipio' : 'Impacto en esta subregión'}</span>
@@ -788,8 +887,8 @@ const $ = (id) => document.getElementById(id);
 
                     ${bienesHtml}
 
-                    <div style="text-align:center; margin-top:12px; font-size:10px; color:var(--text-muted); font-weight:700; text-transform:uppercase;">
-                        Click para ver detalle de bienes ▼
+                    <div style="text-align:center; margin-top:12px; font-size:10px; color:var(--text-muted); font-weight:700; text-transform:uppercase; display:flex; align-items:center; justify-content:center;">
+                        ${UI_ICON.packageCheck}<span>Click para ver detalle de bienes</span>${UI_ICON.chevronDown}
                     </div>
                   </div>
                 `;
@@ -852,13 +951,14 @@ const $ = (id) => document.getElementById(id);
             if (state.heat) {
                 let activeRows = RAW_DATA.filter(r => r.muni !== "INVERSIÓN EXTRADEPARTAMENTAL");
                 if (state.excl) activeRows = activeRows.filter(r => !PROJ_SHARED_MAP[r._key].isShared);
+                if (state.fuente) activeRows = activeRows.filter(r => (r[state.fuente] || 0) > 0);
                 if (state.sec) activeRows = activeRows.filter(r => r.sec === state.sec);
 
                 activeRows.forEach(r => {
-                    HEAT_TOTALS[r.muni] = (HEAT_TOTALS[r.muni] || 0) + (r.rp || 0);
+                    HEAT_TOTALS[r.muni] = (HEAT_TOTALS[r.muni] || 0) + getRowAmount(r, false);
                 });
 
-                if (state.sec || state.excl) {
+                if (state.sec || state.excl || state.fuente) {
                     const vals = Object.values(HEAT_TOTALS);
                     if (vals.length > 0) {
                         HEAT_MAX = Math.max(...vals);
@@ -890,7 +990,7 @@ const $ = (id) => document.getElementById(id);
         function updateMuniDropdown() {
             const mS = $('muniFilter');
             if (!mS) return;
-            mS.innerHTML = '<option value="">🗺️ ' + (state.sub ? 'Toda la Subregión' : 'Visión Global del Tolima') + '</option>';
+            mS.innerHTML = '<option value="">' + (state.sub ? 'Toda la Subregión' : 'Visión Global del Tolima') + '</option>';
 
             (state.sub ? state.munisList.filter(m => isMuniInSubregion(m, state.sub)) : state.munisList).forEach(m => {
                 mS.innerHTML += '<option value="' + m + '">' + m + '</option>';
@@ -1140,6 +1240,7 @@ const $ = (id) => document.getElementById(id);
             let baseArray = (state.muni || state.sub) ? RAW_DATA : ORIGINAL_DATA;
             let activeRows = baseArray;
             if (state.excl) activeRows = activeRows.filter(r => !PROJ_SHARED_MAP[r._key].isShared);
+            if (state.fuente) activeRows = activeRows.filter(r => (r[state.fuente] || 0) > 0);
 
             let geoRows = [];
             let geoTitle = "DEPARTAMENTO DEL TOLIMA";
@@ -1166,10 +1267,10 @@ const $ = (id) => document.getElementById(id);
             if (state.sec) geoRows = geoRows.filter(r => r.sec === state.sec);
 
             const isGlobal = (baseArray === ORIGINAL_DATA);
-            const totalRP = geoRows.reduce((sum, r) => sum + (isGlobal ? r.fullRp : r.rp), 0);
+            const totalRP = geoRows.reduce((sum, r) => sum + getRowAmount(r, isGlobal), 0);
             const totalOP = geoRows.reduce((sum, r) => sum + (isGlobal ? r.fullOp : r.op), 0);
             const printDeptOnlyRP = isGlobal
-                ? geoRows.reduce((sum, r) => sum + (isDeptOnlyMuni(r.muni) ? (r.fullRp || 0) : 0), 0)
+                ? geoRows.reduce((sum, r) => sum + (isDeptOnlyMuni(r.muni) ? getRowAmount(r, true) : 0), 0)
                 : 0;
             const printMuniAllocRP = totalRP - printDeptOnlyRP;
 
@@ -1182,11 +1283,16 @@ const $ = (id) => document.getElementById(id);
 
             geoRows.forEach(r => {
                 if (!groupedBySec[r.sec]) groupedBySec[r.sec] = {};
-                if (!groupedBySec[r.sec][r._key]) {
-                    groupedBySec[r.sec][r._key] = { pname: r.pname, bpin: r.pid, sec: r.sec, rp: 0, bienes: new Set() };
+                const info = PROJ_SHARED_MAP[r._key];
+                const pk = (!state.muni && info && !info.isShared && !info.isDeptOnly) ? (r._pidKey + "__MUNI_EXCL") : r._key;
+                if (!groupedBySec[r.sec][pk]) {
+                    groupedBySec[r.sec][pk] = { pname: r.pname, bpin: r.pid, sec: r.sec, rp: 0, bienes: new Set() };
                     totalProjs++;
                 }
-                groupedBySec[r.sec][r._key].rp += (isGlobal ? r.fullRp : r.rp);
+                groupedBySec[r.sec][pk].rp += getRowAmount(r, isGlobal);
+                if (r.bien && r.bien.trim() !== "") {
+                    groupedBySec[r.sec][pk].bienes.add(r.bien.trim());
+                }
             });
 
             let today = new Date().toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -1196,16 +1302,12 @@ const $ = (id) => document.getElementById(id);
                 tableRows += `
             <tr style="background: #f1f5f9; -webkit-print-color-adjust: exact; print-color-adjust: exact; page-break-after: avoid;">
                 <td colspan="3" style="font-weight: 900; color: #761C33; font-size: 13px; padding: 10px 8px; border-bottom: 2px solid #cbd5e1; text-transform: uppercase; letter-spacing: 0.5px;">
-                    🏛️ ${sec}
+                    ${UI_ICON.landmark}${sec}
                 </td>
             </tr>`;
 
                 Object.values(groupedBySec[sec]).sort((a, b) => b.rp - a.rp).forEach(p => {
-                    const bienesSet = new Set();
-                    ORIGINAL_DATA.filter(r => (p.bpin ? r.pid === p.bpin : r.pname === p.pname && r.sec === p.sec) && r.bien && r.bien.trim() !== "")
-                        .forEach(r => bienesSet.add(r.bien.trim()));
-
-                    const bienesList = Array.from(bienesSet);
+                    const bienesList = Array.from(p.bienes || []);
                     let bienesHtml = "";
                     if (bienesList.length > 0) {
                         bienesHtml = `<div style="margin-top: 6px; font-size: 9px; line-height: 1.4;">
@@ -1665,11 +1767,11 @@ const $ = (id) => document.getElementById(id);
                             </div>
                             ${(isGlobal && printDeptOnlyRP > 0) ? `
                             <div class="print-kpi-card" style="border-top-color: #CBA135;">
-                                <div class="print-kpi-label">Inversión Municipalizable (47 Mpos)</div>
+                                <div class="print-kpi-label">Inversión con Impacto Municipal</div>
                                 <div class="print-kpi-value">${fmtCOP(printMuniAllocRP)}</div>
                             </div>
                             <div class="print-kpi-card" style="border-top-color: #761C33;">
-                                <div class="print-kpi-label">Nivel Departamental (TOLIMA no divisible)</div>
+                                <div class="print-kpi-label">Inversión de Alcance Departamental</div>
                                 <div class="print-kpi-value" style="color: #761C33;">${fmtCOP(printDeptOnlyRP)}</div>
                             </div>` : ''}
                         </div>
