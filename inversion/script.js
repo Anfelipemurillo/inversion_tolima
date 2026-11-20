@@ -1,4 +1,4 @@
-﻿// ==========================================
+// ==========================================
 // ADAPTACIÓN DESDE GOOGLE APPS SCRIPT (GAS)
 // ==========================================
 async function fetchClientPayload(vigencia, skipStatic = false) {
