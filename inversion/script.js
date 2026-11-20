@@ -567,7 +567,7 @@ function getSecIcon(secName) {
             ORIGINAL_DATA.forEach(r => secTotalsMap[r.sec] = (secTotalsMap[r.sec] || 0) + (r.fullRp || 0));
 
             state.maxRP = Math.max(...Object.values(muniTotalsMap), 0);
-            state.munisList = MUNICIPIOS_TOLIMA_CANON.slice().sort((a, b) => (muniTotalsMap[b] || 0) - (muniTotalsMap[a] || 0));
+            state.munisList = MUNICIPIOS_TOLIMA_CANON.slice().sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
 
             // Respaldo: si por algún motivo el mapa no se construyó ya en init()
             // (p.ej. MAP_GEOJSON llegó vacío/null en el HTML), se intenta aquí.
@@ -587,9 +587,12 @@ function getSecIcon(secName) {
 
             if ($('secFilter')) {
                 $('secFilter').innerHTML = '<option value="">Todas las Dependencias o Entidades</option>';
-                [...new Set(ORIGINAL_DATA.map(r => r.sec))].sort((a, b) => (secTotalsMap[b] || 0) - (secTotalsMap[a] || 0)).forEach(s => {
-                    $('secFilter').innerHTML += '<option value="' + s + '">' + s + '</option>';
-                });
+                [...new Set(ORIGINAL_DATA.map(r => r.sec))]
+                    .filter(Boolean)
+                    .sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }))
+                    .forEach(s => {
+                        $('secFilter').innerHTML += '<option value="' + s + '">' + s + '</option>';
+                    });
             }
 
             calculateDashboard();
@@ -992,7 +995,9 @@ function getSecIcon(secName) {
             if (!mS) return;
             mS.innerHTML = '<option value="">' + (state.sub ? 'Toda la Subregión' : 'Visión Global del Tolima') + '</option>';
 
-            (state.sub ? state.munisList.filter(m => isMuniInSubregion(m, state.sub)) : state.munisList).forEach(m => {
+            const munis = (state.sub ? state.munisList.filter(m => isMuniInSubregion(m, state.sub)) : state.munisList).slice();
+            munis.sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
+            munis.forEach(m => {
                 mS.innerHTML += '<option value="' + m + '">' + m + '</option>';
             });
             mS.value = state.muni;

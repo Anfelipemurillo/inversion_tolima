@@ -191,7 +191,11 @@ function procesarNuevosDatos(rawData, demoData) {
         }
     }
 
-    state.munisList = Object.keys(DATOS_IPM).filter(k => k !== 'TOLIMA').sort((a, b) => DATOS_IPM[a].nombreReal.localeCompare(DATOS_IPM[b].nombreReal));
+    state.munisList = Object.keys(DATOS_IPM).filter(k => k !== 'TOLIMA').sort((a, b) => {
+        const nameA = (DATOS_IPM[a] && DATOS_IPM[a].nombreReal) ? DATOS_IPM[a].nombreReal : a;
+        const nameB = (DATOS_IPM[b] && DATOS_IPM[b].nombreReal) ? DATOS_IPM[b].nombreReal : b;
+        return nameA.localeCompare(nameB, 'es', { sensitivity: 'base' });
+    });
     populateMuniFilter();
 }
 
@@ -328,11 +332,17 @@ function renderDetailPanel(m) {
 
 function populateMuniFilter() {
     const mS = $('muniFilter');
+    if (!mS) return;
     mS.innerHTML = '<option value="TOLIMA">Visión Global del Tolima</option>';
-    state.munisList.forEach(m => {
-        if (!state.subregion || isMuniInSubregion(m, state.subregion)) {
-            mS.innerHTML += `<option value="${m}">${DATOS_IPM[m].nombreReal}</option>`;
-        }
+    const filtered = state.munisList.filter(m => !state.subregion || isMuniInSubregion(m, state.subregion));
+    filtered.sort((a, b) => {
+        const nameA = (DATOS_IPM[a] && DATOS_IPM[a].nombreReal) ? DATOS_IPM[a].nombreReal : a;
+        const nameB = (DATOS_IPM[b] && DATOS_IPM[b].nombreReal) ? DATOS_IPM[b].nombreReal : b;
+        return nameA.localeCompare(nameB, 'es', { sensitivity: 'base' });
+    });
+    filtered.forEach(m => {
+        const displayName = (DATOS_IPM[m] && DATOS_IPM[m].nombreReal) ? DATOS_IPM[m].nombreReal : m;
+        mS.innerHTML += `<option value="${m}">${displayName}</option>`;
     });
     mS.value = state.muni || '';
 }
